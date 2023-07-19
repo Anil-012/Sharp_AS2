@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+      padding: 5px;
+      background-color: #f9f9f9;
+    }
+    .user-item .username {
+      margin-right: 10px;
+    }
+    .user-item .delete-btn {
+      background-color: #ff0000;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" required>
+      <label for="password">Password:</label>
+      <input type="password" id="password" required>
+      <input type="submit" value="Login">
+    </form>
+    
+    <div id="userList"></div>
+  </div>
+
+  <script>
+    // Function to render the user list in the UI
+    function renderUserList(users) {
+      var userList = document.getElementById("userList");
+      userList.innerHTML = "";
+
+      users.forEach(function(user, index) {
+        var userItem = document.createElement("div");
+        userItem.className = "user-item";
+
+        var username = document.createElement("span");
+        username.className = "username";
+        username.textContent = user.username;
+
+        var deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-btn";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.addEventListener("click", function() {
+          // Remove the user from the array
+          users.splice(index, 1);
+          // Update the local storage with the modified array
+          localStorage.setItem("users", JSON.stringify(users));
+          // Re-render the user list in the UI
+          renderUserList(users);
+        });
+
+        userItem.appendChild(username);
+        userItem.appendChild(deleteBtn);
+        userList.appendChild(userItem);
+      });
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+
+      // Get the username and password values
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+
+      // Create an object to store the user data
+      var user = {
+        username: username,
+        password: password
+      };
+
+      // Get existing users from local storage
+      var existingUsers = localStorage.getItem("users");
+      var users = existingUsers ? JSON.parse(existingUsers) : [];
+
+      // Add the new user to the array
+      users.push(user);
+
+      // Store the updated array of users in local storage
+      localStorage.setItem("users", JSON.stringify(users));
+
+      // Clear the form inputs
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+
+      // Re-render the user list in the UI
+      renderUserList(users);
+
+      // Redirect or perform any other desired action after successful login
+      alert("Login successful!");
+    });
+
+    // Initialize the user list when the page loads
+    window.addEventListener("load", function() {
+      var existingUsers = localStorage.getItem("users");
+      var users = existingUsers ? JSON.parse(existingUsers) : [];
+      renderUserList(users);
+    });
+  </script>
+</body>
+</html>
