@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #dd7373;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(15, 1, 1, 0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    input[type="submit"] {
+      width: 45%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover {
+      background-color: rgb(4, 5, 4);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" required>
+      <label for="password">Password:</label>
+      <input type="password" id="password" required>
+      <input type="submit" value="Login">
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+
+      // Get the username and password values
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+
+      // Create an object to store the user data
+      var user = {
+        username: username,
+        password: password
+      };
+
+      // Get existing users from local storage
+      var existingUsers = localStorage.getItem("users");
+      var users = existingUsers ? JSON.parse(existingUsers) : [];
+
+      // Add the new user to the array
+      users.push(user);
+
+      // Store the updated array of users in local storage
+      localStorage.setItem("users", JSON.stringify(users));
+
+      // Clear the form inputs
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+
+      // Redirect or perform any other desired action after successful login
+      alert("Login successful!");
+    });
+  </script>
+</body>
+</html>
