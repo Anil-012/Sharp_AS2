@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    button.editBtn {
+      background-color: #2196F3;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="name">Name:</label>
+      <input type="text" id="name" required>
+      <label for="email">Email:</label>
+      <input type="text" id="email" required>
+      <input type="submit" value="Add">
+    </form>
+  </div>
+
+  <div id="userData">
+    <h3>User Data:</h3>
+    <ul id="userList"></ul>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+
+  <script>
+    const userList = document.getElementById("userList");
+
+    // Load user data from local storage on page load
+    window.addEventListener("load", function () {
+      const storedData = localStorage.getItem("userData");
+      if (storedData) {
+        userList.innerHTML = storedData;
+        addEditDeleteListeners();
+      }
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+
+      const user = {
+        name: name,
+        email: email
+      };
+
+      axios.post("https://crudcrud.com/api/abf5cf45c597424e89e049db1803061f/changed", user)
+        .then(function (response) {
+          const listItem = document.createElement("li");
+          listItem.innerHTML = `
+            <strong>Name:</strong> ${response.data.name}<br>
+            <strong>Email:</strong> ${response.data.email}<br>
+            <button class="editBtn">Edit</button>
+            <button class="deleteBtn">Delete</button>
+          `;
+          userList.appendChild(listItem);
+
+          addEditDeleteListeners();
+
+          // Save user data to local storage
+          localStorage.setItem("userData", userList.innerHTML);
+        })
+        .catch(function (error) {
+          console.error("Login error:", error);
+          alert("Failed to add user.");
+        });
+
+      document.getElementById("name").value = "";
+      document.getElementById("email").value = "";
+    });
+
+    function addEditDeleteListeners() {
+      const editButtons = document.querySelectorAll(".editBtn");
+      const deleteButtons = document.querySelectorAll(".deleteBtn");
+
+      editButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          const listItem = button.parentElement;
+          const name = listItem.querySelector("strong:first-of-type").textContent;
+          const email = listItem.querySelector("strong:nth-of-type(2)").textContent;
+
+          document.getElementById("name").value = name.trim();
+          document.getElementById("email").value = email.trim();
+
+          // Remove the edited item from the list
+          listItem.remove();
+
+          // Save updated user data to local storage
+          localStorage.setItem("userData", userList.innerHTML);
+        });
+      });
+
+      deleteButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          const listItem = button.parentElement;
+          listItem.remove();
+
+          // Save updated user data to local storage
+          localStorage.setItem("userData", userList.innerHTML);
+        });
+      });
+    }
+
+    addEditDeleteListeners();
+
+  </script>
+</body>
+
+</html>
