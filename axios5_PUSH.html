@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    button.editBtn {
+      background-color: #2196F3;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .delete-icon {
+      color: red;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="name">Name:</label>
+      <input type="text" id="name" required>
+      <label for="email">Email:</label>
+      <input type="text" id="email" required>
+      <input type="submit" value="Add">
+    </form>
+  </div>
+
+  <div id="userData">
+    <h3>User Data:</h3>
+    <ul id="userList"></ul>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+  <script>
+    const userList = document.getElementById("userList");
+    let editingUserId = null;
+
+    function fetchUsers() {
+      axios.get("https://crudcrud.com/api/2d7f2a3b4b6543eda10a37675367cd42/NEW")
+        .then(function (response) {
+          userList.innerHTML = '';
+          response.data.forEach(user => {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `
+              <strong>Name:</strong> ${user.name}<br>
+              <strong>Email:</strong> ${user.email}
+              <span class="delete-icon" data-id="${user._id}">Delete</span>
+            `;
+            addEditButton(user, listItem);
+            userList.appendChild(listItem);
+          });
+          addDeleteListeners();
+        })
+        .catch(function (error) {
+          console.error("Fetch error:", error);
+        });
+    }
+
+    fetchUsers();
+
+    document.getElementById("loginForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+
+      const user = {
+        name: name,
+        email: email
+      };
+
+      if (editingUserId) {
+        axios.put(`https://crudcrud.com/api/2d7f2a3b4b6543eda10a37675367cd42/NEW/${editingUserId}`, user)
+          .then(function () {
+            fetchUsers();
+          })
+          .catch(function (error) {
+            console.error("Edit error:", error);
+            alert("Failed to edit user.");
+          });
+      } else {
+        axios.post("https://crudcrud.com/api/2d7f2a3b4b6543eda10a37675367cd42/NEW", user)
+          .then(function () {
+            fetchUsers();
+          })
+          .catch(function (error) {
+            console.error("Login error:", error);
+            alert("Failed to add user.");
+          });
+      }
+
+      editingUserId = null;
+      document.getElementById("name").value = "";
+      document.getElementById("email").value = "";
+    });
+
+    function addDeleteListeners() {
+      const deleteIcons = document.querySelectorAll(".delete-icon");
+
+      deleteIcons.forEach(function (icon) {
+        icon.addEventListener("click", function () {
+          const userId = icon.getAttribute("data-id");
+          axios.delete(`https://crudcrud.com/api/2d7f2a3b4b6543eda10a37675367cd42/NEW/${userId}`)
+            .then(function () {
+              icon.parentElement.remove();
+            })
+            .catch(function (error) {
+              console.error("Delete error:", error);
+              alert("Failed to delete user.");
+            });
+        });
+      });
+    }
+
+    function addEditButton(user, listItem) {
+      const editButton = document.createElement("button");
+      editButton.classList.add("editBtn");
+      editButton.innerText = "Edit";
+      editButton.addEventListener("click", function () {
+        editingUserId = user._id;
+        document.getElementById("name").value = user.name;
+        document.getElementById("email").value = user.email;
+      });
+      listItem.appendChild(editButton);
+    }
+
+    fetchUsers();
+  </script>
+</body>
+
+</html>
